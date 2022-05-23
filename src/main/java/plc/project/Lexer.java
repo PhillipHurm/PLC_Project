@@ -3,8 +3,6 @@ package plc.project;
 import java.util.ArrayList;
 import java.util.List;
 
-//TEST TEST TEST 5/23 PH
-
 /**
  * The lexer works through three main functions:
  *
@@ -56,16 +54,19 @@ public final class Lexer {
      * by {@link #lex()}
      */
     public Token lexToken() {
+        if (peek("[+-]?\\d+(\\.\\d+)?"))
+            lexNumber();
+        if (peek("[A-Za-z_][A-Za-z0-9_-]*"))
+            lexIdentifier();
+
         throw new UnsupportedOperationException(); //TODO
     }
     public Token lexIdentifier() {
         throw new UnsupportedOperationException(); //TODO
     }
-//[A-Za-z_][A-Za-z0-9_-]*
     public Token lexNumber() {
         throw new UnsupportedOperationException(); //TODO
     }
-//NUMBER = Pattern.compile("[+-]?\\d+(\\.\\d+)?")
     public Token lexCharacter() {
         throw new UnsupportedOperationException(); //TODO
     }
@@ -88,7 +89,11 @@ public final class Lexer {
      * return true if the next characters are {@code 'a', 'b', 'c'}.
      */
     public boolean peek(String... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in lecture)
+        for (int i =0; i < patterns.length; i++){
+            if (!chars.has(i) || !String.valueOf(chars.get(i)).matches(patterns[i])) {
+                return false;
+        }
+            return true;
     }
 
     /**
@@ -97,7 +102,9 @@ public final class Lexer {
      * true. Hint - it's easiest to have this method simply call peek.
      */
     public boolean match(String... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in lecture)
+        //Create boolean object for peek; return the peek
+        }
+
     }
 
     /**
