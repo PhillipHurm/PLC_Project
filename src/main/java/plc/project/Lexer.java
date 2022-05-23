@@ -35,10 +35,10 @@ public final class Lexer {
             /**skip over whitespace if negate is true*/
             if(peek("[^\b\r\n\t]")) {
                 tokenList.add(lexToken());
+                chars.advance();
             }
             else {
                 /**skip to the next in the string*/
-                chars.advance();
                 chars.skip();  /**Length = 0**/
             }
         }
