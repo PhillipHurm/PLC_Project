@@ -47,11 +47,11 @@ public final class Lexer {
     public Token lexIdentifier() {
         throw new UnsupportedOperationException(); //TODO
     }
-
+//[A-Za-z_][A-Za-z0-9_-]*
     public Token lexNumber() {
         throw new UnsupportedOperationException(); //TODO
     }
-
+//NUMBER = Pattern.compile("[+-]?\\d+(\\.\\d+)?")
     public Token lexCharacter() {
         throw new UnsupportedOperationException(); //TODO
     }
