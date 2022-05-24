@@ -57,7 +57,7 @@ public final class Lexer {
     public Token lexToken() {
         if (peek("[A-Za-z_]")) {
             return lexIdentifier();
-        } else if (peek("")) {
+        } else if (peek("[+-]?\\d+(\\.\\d+)?")) {
             return lexNumber();
         } else if (peek("")) {
             return lexCharacter();
@@ -85,7 +85,8 @@ public final class Lexer {
     }
 
     public Token lexNumber() {
-        throw new UnsupportedOperationException(); //TODO
+        Token token = chars.emit(Token.Type.IDENTIFIER);
+        return token;
     }
 
     public Token lexCharacter() {
