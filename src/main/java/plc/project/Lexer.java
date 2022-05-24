@@ -57,7 +57,7 @@ public final class Lexer {
     public Token lexToken() {
         if (peek("[A-Za-z_]")) {
             return lexIdentifier();
-        } else if (peek("[+-]", "[0-9]") || peek("[0-9]")) {
+        } else if (peek("[+-0-9\\.]")) {
             return lexNumber();
         } else if (peek("\'")) {
             return lexCharacter();
@@ -85,6 +85,21 @@ public final class Lexer {
     }
 
     public Token lexNumber() {
+        /** Work in progress
+        int startIndex = chars.index;
+        while(peek("[+-0-9\\.]"))
+
+            if (peek(("[0-9]"))) {
+            Token token = chars.emit(Token.Type.INTEGER);
+            return token;
+        }
+        else if (peek(("\\."))) {
+            Token token = chars.emit(Token.Type.DECIMAL);
+            return token;
+        }
+        //Add condition for final decimal
+        return null;
+         */
         throw new UnsupportedOperationException(); //TODO
     }
 
