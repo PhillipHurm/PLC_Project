@@ -31,13 +31,12 @@ public final class Lexer {
      */
     public List<Token> lex() {
         List<Token> tokenList = new ArrayList<>();
-        while(chars.index <= chars.input.length()) {
+        while (chars.index <= chars.input.length()) {
             /**skip over whitespace if negate is true*/
-            if(peek("[^\b\r\n\t]")) {
+            if (peek("[^\b\r\n\t]")) {
                 tokenList.add(lexToken());
                 chars.advance();
-            }
-            else {
+            } else {
                 /**skip to the next in the string*/
                 chars.skip();  /**Length = 0**/
             }
@@ -49,27 +48,35 @@ public final class Lexer {
      * This method determines the type of the next token, delegating to the
      * appropriate lex method. As such, it is best for this method to not change
      * the state of the char stream (thus, use peek not match).
-     *
+     * <p>
      * The next character should start a valid token since whitespace is handled
      * by {@link #lex()}
-     */
+     **/
     public Token lexToken() {
-        if (peek("[+-]?\\d+(\\.\\d+)?"))
-            lexNumber();
-        if (peek("[A-Za-z_][A-Za-z0-9_-]*"))
-            lexIdentifier();
-
-        if(peek("\\\\d")) {
-            lexNumber();
+        if (peek("")) {
+            return lexIdentifier();
+        } else if (peek("")) {
+            return lexNumber();
+        } else if (peek("")) {
+            return lexCharacter();
+        } else if (peek("")) {
+            return lexString();
+        } else if (peek("")) {
+            return lexEscape();
+        } else {
+            return lexOperator();
         }
-        return token;
     }
+
+
     public Token lexIdentifier() {
         throw new UnsupportedOperationException(); //TODO
     }
+
     public Token lexNumber() {
         throw new UnsupportedOperationException(); //TODO
     }
+
     public Token lexCharacter() {
         throw new UnsupportedOperationException(); //TODO
     }
@@ -91,24 +98,25 @@ public final class Lexer {
      * which should be a regex. For example, {@code peek("a", "b", "c")} would
      * return true if the next characters are {@code 'a', 'b', 'c'}.
      */
+
     public boolean peek(String... patterns) {
         for (int i = 0; i < patterns.length; i++) {
             if (!chars.has(i) || !String.valueOf(chars.get(i)).matches(patterns[i])) {
                 return false;
             }
-            return true;
         }
+        return true;
     }
 
     /**
-     * Returns true in the same way as {@link #peek(String...)}, but also
+     * Returns true in the same way as peek String but also
      * advances the character stream past all matched characters if peek returns
      * true. Hint - it's easiest to have this method simply call peek.
-     */
+     **/
 
 
     public boolean match(String... patterns) {
-        boolean matched = peek(patterns);
+        boolean matched = peek(patterns); /**Calls back to peek**/
         if (matched) {
             for (int i = 0; i < patterns.length; i++) {
                 chars.advance();
@@ -121,7 +129,7 @@ public final class Lexer {
     /**
      * A helper class maintaining the input string, current index of the char
      * stream, and the current length of the token being matched.
-     *
+     * <p>
      * You should rely on peek/match for state management in nearly all cases.
      * The only field you need to access is {@link #index} for any {@link
      * ParseException} which is thrown.
@@ -158,7 +166,5 @@ public final class Lexer {
             skip();
             return new Token(type, input.substring(start, index), start);
         }
-
     }
-
 }
