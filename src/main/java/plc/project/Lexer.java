@@ -59,7 +59,10 @@ public final class Lexer {
         if (peek("[A-Za-z_][A-Za-z0-9_-]*"))
             lexIdentifier();
 
-        throw new UnsupportedOperationException(); //TODO
+        if(peek("\\\\d")) {
+            lexNumber();
+        }
+        return token;
     }
     public Token lexIdentifier() {
         throw new UnsupportedOperationException(); //TODO
@@ -89,11 +92,12 @@ public final class Lexer {
      * return true if the next characters are {@code 'a', 'b', 'c'}.
      */
     public boolean peek(String... patterns) {
-        for (int i =0; i < patterns.length; i++){
+        for (int i = 0; i < patterns.length; i++) {
             if (!chars.has(i) || !String.valueOf(chars.get(i)).matches(patterns[i])) {
                 return false;
-        }
+            }
             return true;
+        }
     }
 
     /**
@@ -101,11 +105,18 @@ public final class Lexer {
      * advances the character stream past all matched characters if peek returns
      * true. Hint - it's easiest to have this method simply call peek.
      */
-    public boolean match(String... patterns) {
-        //Create boolean object for peek; return the peek
-        }
 
+
+    public boolean match(String... patterns) {
+        boolean matched = peek(patterns);
+        if (matched) {
+            for (int i = 0; i < patterns.length; i++) {
+                chars.advance();
+            }
+        }
+        return matched;
     }
+
 
     /**
      * A helper class maintaining the input string, current index of the char
