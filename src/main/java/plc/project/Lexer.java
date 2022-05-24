@@ -73,13 +73,15 @@ public final class Lexer {
 
 
     public Token lexIdentifier() {
-            String tokenString = new String();
-            while(peek("[A-Za-z0-9_-]*")) {
-                tokenString += chars.get(chars.index);
-                chars.advance();
+            String tokenString = new String(); //Creates string that will become the token data
+            while(peek("[A-Za-z0-9_-]*")) {  //This loop will continue for the full length of identifier
+                tokenString += chars.get(chars.index); //Adds the current char from charstring then...
+                chars.advance();                       //skips to the next character and loops
             }
             Token token = new Token(Token.Type.IDENTIFIER, tokenString, tokenString.length());
+            //Creates a token of type identifier containing this string of characters
             return token;
+            //returns it
     }
 
     public Token lexNumber() {
