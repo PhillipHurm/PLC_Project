@@ -73,7 +73,7 @@ public final class Lexer {
 
 
     public Token lexIdentifier() {
-            String tokenString = new String("");
+            String tokenString = new String();
             while(peek("[A-Za-z0-9_-]*")) {
                 tokenString += chars.get(chars.index);
                 chars.advance();
