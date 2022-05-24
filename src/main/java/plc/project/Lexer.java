@@ -92,11 +92,23 @@ public final class Lexer {
                 return;
             }
         }
-        throw new ParseException("Escape Not Valid", chars.index);
+        throw new ParseException("Escape Not Valid at index ", chars.index);
     }
 
     public Token lexOperator() {
-        throw new UnsupportedOperationException(); //TODO
+        if (match("[!=<>]")) {
+            if (match("==")) {
+                return chars.emit(Token.Type.OPERATOR);
+            }
+            else if (match("<=")) {
+                return chars.emit(Token.Type.OPERATOR);
+            }
+            else if (match(">=")) {
+                return chars.emit(Token.Type.OPERATOR);
+            }
+        }
+        match(".");
+        return chars.emit(Token.Type.OPERATOR);
     }
 
     /**
