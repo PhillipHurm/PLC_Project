@@ -1,5 +1,7 @@
 package plc.project;
 
+import org.omg.CORBA.IdentifierHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +55,7 @@ public final class Lexer {
      * by {@link #lex()}
      **/
     public Token lexToken() {
-        if (peek("")) {
+        if (peek("[A-Za-z_]")) {
             return lexIdentifier();
         } else if (peek("")) {
             return lexNumber();
@@ -71,7 +73,13 @@ public final class Lexer {
 
 
     public Token lexIdentifier() {
-        throw new UnsupportedOperationException(); //TODO
+            String tokenString = new String("");
+            while(peek("[A-Za-z0-9_-]*")) {
+                tokenString += chars.get(chars.index);
+                chars.advance();
+            }
+            Token token = new Token(Token.Type.IDENTIFIER, tokenString, tokenString.length());
+            return token;
     }
 
     public Token lexNumber() {
