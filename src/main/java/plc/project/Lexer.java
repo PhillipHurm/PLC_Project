@@ -87,10 +87,12 @@ public final class Lexer {
     }
 
     public void lexEscape() {
-        if (match("\"((\\\\[bnrt\\\"\\'\\\\])*|((?<!\\\\).))*\"")) {
-            return;
+        if (match("\\\\")) {
+            if (match("[bnrt\\\"\\'\\\\]")) {
+                return;
+            }
         }
-        throw new ParseException("Invalid Escape", chars.index);
+        throw new ParseException("Escape Not Valid", chars.index);
     }
 
     public Token lexOperator() {
