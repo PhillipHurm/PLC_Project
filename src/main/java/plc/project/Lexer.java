@@ -57,13 +57,13 @@ public final class Lexer {
     public Token lexToken() {
         if (peek("[A-Za-z_]")) {
             return lexIdentifier();
-        } else if (peek("[+-]?\\d+(\\.\\d+)?")) {
+        } else if (peek("[+-]", "[0-9]") || peek("[0-9]")) {
             return lexNumber();
-        } else if (peek("")) {
+        } else if (peek("\'")) {
             return lexCharacter();
-        } else if (peek("")) {
+        } else if (peek("\"")) {
             return lexString();
-        } else if (peek("")) {
+        } else if (peek("\\\\")) {
             lexEscape();
         } else {
             return lexOperator();
@@ -85,8 +85,7 @@ public final class Lexer {
     }
 
     public Token lexNumber() {
-        Token token = chars.emit(Token.Type.IDENTIFIER);
-        return token;
+        throw new UnsupportedOperationException(); //TODO
     }
 
     public Token lexCharacter() {
