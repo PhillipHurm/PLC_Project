@@ -108,7 +108,19 @@ public final class Lexer {
     }
 
     public Token lexString() {
-        throw new UnsupportedOperationException(); //TODO
+        match("\"");
+        while(match("[^\"\r\n]")) {
+            if(match("\\\\")) {
+                if(!match("[brnt\"'\\\\]")) {
+                    throw new ParseException("Not Valid",chars.index);
+                }
+            }
+        }
+        if (match("\"")) {
+            return chars.emit(Token.Type.STRING);
+        }
+
+        throw new UnsupportedOperationException();
     }
 
     public void lexEscape() {
