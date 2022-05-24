@@ -32,13 +32,13 @@ public final class Lexer {
     public List<Token> lex() {
         List<Token> tokenList = new ArrayList<>();
         while (chars.index <= chars.input.length()) {
-            /**skip over whitespace if negate is true*/
+            //skip over whitespace if negate is true
             if (peek("[^\b\r\n\t]")) {
                 tokenList.add(lexToken());
                 chars.advance();
             } else {
-                /**skip to the next in the string*/
-                chars.skip();  /**Length = 0**/
+                //skip to the next in the string
+                chars.skip();  //Length = 0
             }
         }
         return tokenList;
@@ -62,10 +62,11 @@ public final class Lexer {
         } else if (peek("")) {
             return lexString();
         } else if (peek("")) {
-            return lexEscape();
+            lexEscape();
         } else {
             return lexOperator();
         }
+        throw new ParseException("Error exists at index " + chars.index, chars.index);
     }
 
 
@@ -86,7 +87,10 @@ public final class Lexer {
     }
 
     public void lexEscape() {
-        throw new UnsupportedOperationException(); //TODO
+        if (match("\"((\\\\[bnrt\\\"\\'\\\\])*|((?<!\\\\).))*\"")) {
+            return;
+        }
+        throw new ParseException("Invalid Escape", chars.index);
     }
 
     public Token lexOperator() {
@@ -116,7 +120,7 @@ public final class Lexer {
 
 
     public boolean match(String... patterns) {
-        boolean matched = peek(patterns); /**Calls back to peek**/
+        boolean matched = peek(patterns); //Calls back to peek
         if (matched) {
             for (int i = 0; i < patterns.length; i++) {
                 chars.advance();
