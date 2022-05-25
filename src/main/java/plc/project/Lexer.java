@@ -35,10 +35,10 @@ public final class Lexer {
         List<Token> tokenList = new ArrayList<>();
         while (chars.index <= chars.input.length()) {
             //skip over whitespace if negate is true
-            if (peek("[^\b\r\n\t]")) {
+            if (peek("[^\\s\b\r\n\t]")) {
                 tokenList.add(lexToken());
-                chars.advance();
             } else {
+                chars.advance();
                 //skip to the next in the string
                 chars.skip();  //Length = 0
             }
@@ -104,7 +104,16 @@ public final class Lexer {
     }
 
     public Token lexCharacter() {
-        throw new UnsupportedOperationException(); //TODO
+        if(match("\'")) {
+            if (match("\\\\", "[bnrt'\"\\\\]", "\'")) {
+                    return chars.emit(Token.Type.CHARACTER);
+            }
+            if (match("[^'\r\n]","'"))
+            {
+                return chars.emit(Token.Type.CHARACTER);
+            }
+        }
+        throw new ParseException("Not Valid", chars.index);
     }
 
     public Token lexString() {
@@ -119,28 +128,27 @@ public final class Lexer {
         if (match("\"")) {
             return chars.emit(Token.Type.STRING);
         }
-
-        throw new UnsupportedOperationException();
+        else {
+            throw new ParseException("Not Valid",chars.index);
+        }
     }
 
     public void lexEscape() {
-        if (match("\\\\")) {
-            if (match("[bnrt\\\"\\'\\\\]")) {
-                return;
-            }
+        if (match("\\\\", "[bnrt\\\"\\'\\\\]")) {
+            return;
         }
         throw new ParseException("Escape Not Valid at index ", chars.index);
     }
 
     public Token lexOperator() {
         if (match("[!=<>]")) {
-            if (match("==")) {
-                return chars.emit(Token.Type.OPERATOR);
-            }
-            else if (match("<=")) {
+            if (match("<=")) {
                 return chars.emit(Token.Type.OPERATOR);
             }
             else if (match(">=")) {
+                return chars.emit(Token.Type.OPERATOR);
+            }
+            else if (match("=")) {
                 return chars.emit(Token.Type.OPERATOR);
             }
         }
