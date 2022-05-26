@@ -83,15 +83,20 @@ public final class Lexer {
 
     public Token lexNumber() {
         Token.Type tokenType = Token.Type.INTEGER;
+        boolean trailingDecimal = false;
         if(peek("\\."))
             throw new ParseException("Not Valid",chars.index);
             while (match("[+\\-0-9\\.]")) {
-                if(peek("\\."))
+                if(peek("\\.")) {
                     tokenType = Token.Type.DECIMAL;
+                    trailingDecimal = true;
+                }
+                else
+                    trailingDecimal = false;
             }
             //Hi, Rob!  I'm working on this part.  I want to check the last char that was added to the token.
         //If it's a decimal, I'll throw the exception.
-            if (input.chars.index) == '.'){
+            if (trailingDecimal == true){
                 throw new ParseException("Not Valid",chars.index);
             }
             return chars.emit(tokenType);
