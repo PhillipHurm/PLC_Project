@@ -57,7 +57,7 @@ public final class Lexer {
     public Token lexToken() {
         if (peek("[A-Za-z_]")) {
             return lexIdentifier();
-        } else if (peek("[+-0-9\\.]")) {
+        } else if (peek("[+\\-0-9\\.]")) {
             return lexNumber();
         } else if (peek("\'")) {
             return lexCharacter();
@@ -73,34 +73,28 @@ public final class Lexer {
 
 
     public Token lexIdentifier() {
-            String tokenString = new String(); //Creates string that will become the token data
-            while(peek("[A-Za-z0-9_-]*")) {  //This loop will continue for the full length of identifier
-                tokenString += chars.get(chars.index); //Adds the current char from charstring then...
-                chars.advance();                       //skips to the next character and loops
+        if (match("[A-za-z_]")) {
+            while (match("[A-za-z0-9_\\-]")) {
             }
-            Token token = new Token(Token.Type.IDENTIFIER, tokenString, tokenString.length());
-            //Creates a token of type identifier containing this string of characters
-            return token;
-            //returns it
+            return chars.emit(Token.Type.IDENTIFIER);
+        }
+        else throw new ParseException("Not Valid",chars.index);
     }
 
     public Token lexNumber() {
-        /** Work in progress
-        int startIndex = chars.index;
-        while(peek("[+-0-9\\.]"))
-
-            if (peek(("[0-9]"))) {
-            Token token = chars.emit(Token.Type.INTEGER);
-            return token;
-        }
-        else if (peek(("\\."))) {
-            Token token = chars.emit(Token.Type.DECIMAL);
-            return token;
-        }
-        //Add condition for final decimal
-        return null;
-         */
-        throw new UnsupportedOperationException(); //TODO
+        Token.Type tokenType = Token.Type.INTEGER;
+        if(peek("\\."))
+            throw new ParseException("Not Valid",chars.index);
+            while (match("[+\\-0-9\\.]")) {
+                if(peek("\\."))
+                    tokenType = Token.Type.DECIMAL;
+            }
+            //Hi, Rob!  I'm working on this part.  I want to check the last char that was added to the token.
+        //If it's a decimal, I'll throw the exception.
+            if (input.chars.index) == '.'){
+                throw new ParseException("Not Valid",chars.index);
+            }
+            return chars.emit(tokenType);
     }
 
     public Token lexCharacter() {
