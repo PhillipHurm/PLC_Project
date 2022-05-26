@@ -83,20 +83,21 @@ public final class Lexer {
 
     public Token lexNumber() {
         Token.Type tokenType = Token.Type.INTEGER;
-        boolean trailingDecimal = false;
-        if(peek("\\."))
+        boolean decimalFlag = false;
+        if(peek("\\.")) {
             throw new ParseException("Not Valid",chars.index);
-            while (match("[+\\-0-9\\.]")) {
-                if(peek("\\.")) {
-                    tokenType = Token.Type.DECIMAL;
-                    trailingDecimal = true;
-                }
-                else
-                    trailingDecimal = false;
+        }
+        while (match("[+\\-0-9\\.]")) {
+            if(decimalFlag == true)
+                    if(!peek("[0-9]"))
+                        throw new ParseException("Not Valid",chars.index);
+            if(peek("\\.")) {
+                tokenType = Token.Type.DECIMAL;
+                decimalFlag = true;
             }
-        if (trailingDecimal == true){
-                throw new ParseException("Not Valid",chars.index);
-            }
+            else
+                decimalFlag = false;
+        }
             return chars.emit(tokenType);
     }
 
