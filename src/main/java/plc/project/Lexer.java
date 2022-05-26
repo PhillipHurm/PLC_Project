@@ -94,9 +94,7 @@ public final class Lexer {
                 else
                     trailingDecimal = false;
             }
-            //Hi, Rob!  I'm working on this part.  I want to check the last char that was added to the token.
-        //If it's a decimal, I'll throw the exception.
-            if (trailingDecimal == true){
+        if (trailingDecimal == true){
                 throw new ParseException("Not Valid",chars.index);
             }
             return chars.emit(tokenType);
