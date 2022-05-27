@@ -84,6 +84,7 @@ public final class Lexer {
     public Token lexNumber() {
         Token.Type tokenType = Token.Type.INTEGER;
         boolean decimalFlag = false;
+        boolean multiDecimalChecker = false;
         if(peek("\\.")) {
             throw new ParseException("Not Valid",chars.index);
         }
@@ -94,6 +95,10 @@ public final class Lexer {
             if(peek("\\.")) {
                 tokenType = Token.Type.DECIMAL;
                 decimalFlag = true;
+                if (multiDecimalChecker==false)
+                    multiDecimalChecker = true;
+                else
+                    throw new ParseException("Not Valid",chars.index);
             }
             else
                 decimalFlag = false;
