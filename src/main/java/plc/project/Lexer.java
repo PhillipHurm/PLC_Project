@@ -86,11 +86,19 @@ public final class Lexer {
         Token.Type tokenType = Token.Type.INTEGER;
         boolean decimalFlag = false;
         boolean multiDecimalChecker = false;
-        if(peek("\\.")) {
+    /*    if(peek("\\.")) {
             throw new ParseException("Not Valid",chars.index);
+        }*/
+        match("[+-]");
+        while (match("[0-9]")) {
+            if (match("\\.", "[0-9]")) {
+                while (match("[0-9]")) {
+                }
+                return chars.emit(Token.Type.DECIMAL);
+            }
         }
-        while (match("[+\\-0-9\\.]")) {
-            if(decimalFlag == true)
+        return chars.emit(Token.Type.INTEGER);
+           /* if(decimalFlag == true)
                     if(!peek("[0-9]"))
                         throw new ParseException("Not Valid",chars.index);
             if(peek("\\.")) {
@@ -105,22 +113,30 @@ public final class Lexer {
                 decimalFlag = false;
         }
             return chars.emit(tokenType);
+            */
+
     }
 
     public Token lexCharacter() {
             match("\'");
-            if (match("\\\\", "[bnrt'\"\\\\]", "\'")) {
+           /* if (match("\\\\", "[bnrt'\"\\\\]", "\'")) {
                     return chars.emit(Token.Type.CHARACTER);
+            }*/
+            if (peek("[^\'\r\n]")) {
+                if (peek("\\\\")) {
+                    lexEscape();
+                } else {
+                    chars.advance();
+                }
             }
-            if (match("[^'\r\n]","'"))
-            {
-                return chars.emit(Token.Type.CHARACTER);
+            else {
+                throw new ParseException("Not Valid",chars.index);
             }
             if (!match("\'")) {
                 throw new ParseException("Not Valid", chars.index);
             }
 
-        throw new ParseException("Not Valid", chars.index);
+        return chars.emit(Token.Type.CHARACTER);
     }
 
     public Token lexString() {
@@ -141,10 +157,10 @@ public final class Lexer {
     }
 
     public void lexEscape() {
-        if (match("\\\\", "[bnrt\\\"\\'\\\\]")) {
-            return;
+        match("\\\\");
+        if (!match("[bnrt\"\'\\\\]")) {
+            throw new ParseException("Not Valid ", chars.index);
         }
-        throw new ParseException("Escape Not Valid at index ", chars.index);
     }
 
     public Token lexOperator() {
