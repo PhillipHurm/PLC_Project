@@ -86,9 +86,7 @@ public final class Lexer {
         Token.Type tokenType = Token.Type.INTEGER;
         boolean decimalFlag = false;
         boolean multiDecimalChecker = false;
-    /*    if(peek("\\.")) {
-            throw new ParseException("Not Valid",chars.index);
-        }*/
+
         match("[+-]");
         while (match("[0-9]")) {
             if (match("\\.", "[0-9]")) {
@@ -98,30 +96,10 @@ public final class Lexer {
             }
         }
         return chars.emit(Token.Type.INTEGER);
-           /* if(decimalFlag == true)
-                    if(!peek("[0-9]"))
-                        throw new ParseException("Not Valid",chars.index);
-            if(peek("\\.")) {
-                tokenType = Token.Type.DECIMAL;
-                decimalFlag = true;
-                if (multiDecimalChecker==false)
-                    multiDecimalChecker = true;
-                else
-                    throw new ParseException("Not Valid",chars.index);
-            }
-            else
-                decimalFlag = false;
-        }
-            return chars.emit(tokenType);
-            */
-
     }
 
     public Token lexCharacter() {
             match("\'");
-           /* if (match("\\\\", "[bnrt'\"\\\\]", "\'")) {
-                    return chars.emit(Token.Type.CHARACTER);
-            }*/
             if (peek("[^\'\r\n]")) {
                 if (peek("\\\\")) {
                     lexEscape();
