@@ -57,7 +57,7 @@ public final class Lexer {
     public Token lexToken() {
         if (peek("[A-Za-z_]")) {
             return lexIdentifier();
-        } else if (peek("[+\\-0-9\\.]")) {
+        } else if (peek("[+\\-]","[0-9]") || peek("[0-9]")) {
             return lexNumber();
         } else if (peek("\'")) {
             return lexCharacter();
@@ -69,6 +69,7 @@ public final class Lexer {
             return lexOperator();
         }
         throw new ParseException("Error exists at index " + chars.index, chars.index);
+
     }
 
 
@@ -107,7 +108,7 @@ public final class Lexer {
     }
 
     public Token lexCharacter() {
-        if(match("\'")) {
+            match("\'");
             if (match("\\\\", "[bnrt'\"\\\\]", "\'")) {
                     return chars.emit(Token.Type.CHARACTER);
             }
@@ -115,7 +116,10 @@ public final class Lexer {
             {
                 return chars.emit(Token.Type.CHARACTER);
             }
-        }
+            if (!match("\'")) {
+                throw new ParseException("Not Valid", chars.index);
+            }
+
         throw new ParseException("Not Valid", chars.index);
     }
 
@@ -144,20 +148,14 @@ public final class Lexer {
     }
 
     public Token lexOperator() {
-        if (match("[!=<>]")) {
-            if (match("<=")) {
-                return chars.emit(Token.Type.OPERATOR);
-            }
-            else if (match(">=")) {
-                return chars.emit(Token.Type.OPERATOR);
-            }
-            else if (match("=")) {
-                return chars.emit(Token.Type.OPERATOR);
-            }
+        if (match("[<>!=]")) {
+            match("=");
+        } else {
+            chars.advance();
         }
-        match(".");
         return chars.emit(Token.Type.OPERATOR);
     }
+
 
     /**
      * Returns true if the next sequence of characters match the given patterns,
