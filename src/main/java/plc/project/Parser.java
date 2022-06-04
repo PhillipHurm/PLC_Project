@@ -31,8 +31,7 @@ public final class Parser {
      * Parses the {@code source} rule.
      */
     public Ast.Source parseSource() throws ParseException {
-        //throw new UnsupportedOperationException(); //TODO
-        List<Ast.Method>
+        throw new UnsupportedOperationException(); //TODO
     }
 
     /**
@@ -157,15 +156,21 @@ public final class Parser {
         //throw new UnsupportedOperationException(); //TODO
         if (match("NIL")) {
             return new Ast.Expr.Literal(null);
-        }
-        else if (match("TRUE")) {
+        } else if (match("TRUE")) {
             return new Ast.Expr.Literal(true);
-        }
-        else if (match("FALSE")) {
+        } else if (match("FALSE")) {
             return new Ast.Expr.Literal(false);
-        }
-        else {
-            throw new ParseException ("Invalid primary exception" , -1);
+        } else if (match(Token.Type.IDENTIFIER)) {
+            String name = tokens.get(-1).getLiteral();
+            // TODO : Function to handle token if it is
+            return new Ast.Expr.Access(Optional.empty(), name);
+            //obj.method()
+        } /**else if (match("(")) {
+            Ast.Expr = parseExpression();
+            if (!match(")")) {
+            }
+        }**/ else {
+            throw new ParseException("Invalid primary exception", -1);
             //TODO handle the actual index
         }
     }
