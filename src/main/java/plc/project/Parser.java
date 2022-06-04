@@ -1,7 +1,9 @@
 package plc.project;
 
 import java.util.List;
-
+import java.math.BigInteger;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 /**
  * The parser takes the sequence of tokens emitted by the lexer and turns that
  * into a structured representation of the program, called the Abstract Syntax
@@ -149,7 +151,20 @@ public final class Parser {
      * not strictly necessary.
      */
     public Ast.Expr parsePrimaryExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        if (match("NIL")) {
+            return new Ast.Expr.Literal(null);
+        }
+        else if (match("TRUE")) {
+            return new Ast.Expr.Literal(true);
+        }
+        else if (match("FALSE")) {
+            return new Ast.Expr.Literal(false);
+        }
+        else {
+            throw new ParseException ("Invalid primary exception" , -1);
+            //TODO handle the actual index
+        }
     }
 
     /**
@@ -171,7 +186,14 @@ public final class Parser {
      * and advances the token stream.
      */
     private boolean match(Object... patterns) {
-        throw new UnsupportedOperationException(); //TODO (in lecture)
+        //throw new UnsupportedOperationException(); //TODO (in lecture)
+        boolean peek = peek(patterns);
+        if (peek) {
+            for (int i = 0; i < patterns.length; i++)
+                tokens.advance();
+        }
+
+        return peek;
     }
 
     private static final class TokenStream {
