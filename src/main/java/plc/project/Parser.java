@@ -164,8 +164,12 @@ public final class Parser {
             BigInteger num = new BigInteger(tokens.get(0).getLiteral());
             return new Ast.Expr.Literal(num);
         }
-        } else if (match(Token.Type.IDENTIFIER)) {
-            String name = tokens.get(-1).getLiteral();
+        else if (match(Token.Type.DECIMAL)) {
+            BigDecimal num = new BigDecimal(tokens.get(0).getLiteral());
+            return new Ast.Expr.Literal(num);
+        }
+        /**else if (match(Token.Type.IDENTIFIER)) {
+            String name = tokens.get(0).getLiteral();
             // TODO : Function to handle token if it is
             return new Ast.Expr.Access(Optional.empty(), name);
             //obj.method()
@@ -174,7 +178,7 @@ public final class Parser {
             return new Ast.Expr = parseExpression();
             if (!match(")")) {
             }
-        }
+        }  **/
         else {
             throw new ParseException("Invalid primary exception", -1);
             //TODO handle the actual index
