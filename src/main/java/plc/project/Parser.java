@@ -108,7 +108,9 @@ public final class Parser {
      * Parses the {@code expression} rule.
      */
     public Ast.Expr parseExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //TO DO: CHANGE THIS CODE!!! IT IS A SHORT-TERM "HACK" (see video at 10:00)
+        return parsePrimaryExpression();
+        //throw new UnsupportedOperationException(); //TODO
     }
 
     /**
@@ -161,39 +163,43 @@ public final class Parser {
         } else if (match("FALSE")) {
             return new Ast.Expr.Literal(false);
         } else if (match(Token.Type.INTEGER)) {
-            BigInteger num = new BigInteger(tokens.get(0).getLiteral());
+            BigInteger num = new BigInteger(tokens.get(-1).getLiteral());
             return new Ast.Expr.Literal(num);
         }
         else if (match(Token.Type.DECIMAL)) {
-            BigDecimal num = new BigDecimal(tokens.get(0).getLiteral());
+            BigDecimal num = new BigDecimal(tokens.get(-1).getLiteral());
             return new Ast.Expr.Literal(num);
         }
+        else if (match(Token.Type.IDENTIFIER)) {
+            String name = tokens.get(-1).getLiteral();
+            return new Ast.Expr.Access(Optional.empty(), name);
+        }
         else if (match(Token.Type.CHARACTER)) {
-            if (tokens.get(0).getLiteral().length() < 4) {
-                Character onechar = tokens.get(0).getLiteral().charAt(1);
-                return new Ast.Expr.Literal(onechar);
-            }
+            Character character = tokens.get(-1).getLiteral().charAt(1);
+            return new Ast.Expr.Literal(character);
         }
         else if (match(Token.Type.STRING)) {
-            String stringName = tokens.get(0).getLiteral();
-            return new Ast.Expr.Literal(stringName);
+            String string = tokens.get(-1).getLiteral();
+            string = string.substring(1,string.length()-1);
+            //FIXME: Modify this method to handle escape characters (see test)
+            return new Ast.Expr.Literal(string);
         }
-        /**else if (match(Token.Type.IDENTIFIER)) {
-            String name = tokens.get(0).getLiteral();
-            // TODO : Function to handle token if it is
-            return new Ast.Expr.Access(Optional.empty(), name);
-            //obj.method()
-        }
+
         else if (match("(")) {
-            return new Ast.Expr = parseExpression();
+            Ast.Expr expr = parseExpression();
             if (!match(")")) {
+                //FIXME: replace -1 in next line with true index
+                throw new ParseException("Expected closed parenthesis", -1);
             }
-        }  **/
-        else {
-            throw new ParseException("invalid primary" + " INDEX:" + tokens.get(0).getIndex(), tokens.get(0).getIndex());
-            //TODO handle the actual index
+            return new Ast.Expr.Group(expr);
         }
-        return new Ast.Expr.Literal(0);
+
+        else {
+            throw new ParseException("Invalid primary exception", -1);
+            //TODO handle the actual index in line above
+            //Phillip Note:  The index can be found with token.getIndex(); is this the token index (wrong!) or
+            // char index (correct!)?  If it is the wrong one, maybe we can use a similar char stream method from P1.
+        }
     }
 
     /**
