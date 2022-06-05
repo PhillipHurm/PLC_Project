@@ -81,6 +81,11 @@ final class ParserExpressionTests {
                         Arrays.asList(new Token(Token.Type.IDENTIFIER, "FALSE", 0)),
                         new Ast.Expr.Literal(Boolean.FALSE)
                 ),
+                /*Use this in a different place for the IDENTIFIER test, bc this part only expects Ast.Expr.Literal
+                Arguments.of("Identifier name return test -PH",
+                Arrays.asList(new Token(Token.Type.IDENTIFIER, "OBI WAN", 0)),
+                new Ast.Expr.Literal(Optional.empty(), new String("OBI WAN"))
+                ),*/
                 Arguments.of("Integer Literal",
                         Arrays.asList(new Token(Token.Type.INTEGER, "1", 0)),
                         new Ast.Expr.Literal(new BigInteger("1"))
