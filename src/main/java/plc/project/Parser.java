@@ -108,7 +108,9 @@ public final class Parser {
      * Parses the {@code expression} rule.
      */
     public Ast.Expr parseExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //TO DO: CHANGE THIS CODE!!! IT IS A SHORT-TERM Hack (see video at 10:00)
+        return parsePrimaryExpression();
+        //throw new UnsupportedOperationException(); //TODO
     }
 
     /**
@@ -182,6 +184,8 @@ public final class Parser {
         else {
             throw new ParseException("Invalid primary exception", -1);
             //TODO handle the actual index
+            //Phillip Note:  The index can be found with token.getIndex(); is this the token index (wrong!) or
+            // char index (correct!)?  If it is the wrong one, maybe we can use a similar char stream method from P1.
         }
     }
 
