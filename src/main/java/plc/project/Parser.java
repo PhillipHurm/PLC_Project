@@ -168,6 +168,16 @@ public final class Parser {
             BigDecimal num = new BigDecimal(tokens.get(0).getLiteral());
             return new Ast.Expr.Literal(num);
         }
+        else if (match(Token.Type.CHARACTER)) {
+            if (tokens.get(0).getLiteral().length() < 4) {
+                Character onechar = tokens.get(0).getLiteral().charAt(1);
+                return new Ast.Expr.Literal(onechar);
+            }
+        }
+        else if (match(Token.Type.STRING)) {
+            String stringName = tokens.get(0).getLiteral();
+            return new Ast.Expr.Literal(stringName);
+        }
         /**else if (match(Token.Type.IDENTIFIER)) {
             String name = tokens.get(0).getLiteral();
             // TODO : Function to handle token if it is
@@ -180,9 +190,10 @@ public final class Parser {
             }
         }  **/
         else {
-            throw new ParseException("Invalid primary exception", -1);
+            throw new ParseException("invalid primary" + " INDEX:" + tokens.get(0).getIndex(), tokens.get(0).getIndex());
             //TODO handle the actual index
         }
+        return new Ast.Expr.Literal(0);
     }
 
     /**
