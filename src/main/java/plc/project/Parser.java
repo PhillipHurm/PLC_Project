@@ -23,6 +23,17 @@ public final class Parser {
 
     private final TokenStream tokens;
 
+
+    private int parseIndex(boolean present) {
+        if (present) {
+            return tokens.get(0).getIndex();
+        }
+        else {
+            return tokens.get(-1).getLiteral().length() + tokens.get(-1).getIndex();
+        }
+    }
+
+
     public Parser(List<Token> tokens) {
         this.tokens = new TokenStream(tokens);
     }
@@ -31,7 +42,34 @@ public final class Parser {
      * Parses the {@code source} rule.
      */
     public Ast.Source parseSource() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        List<Ast.Method> methods = new ArrayList<Ast.Method>();
+        List<Ast.Field> fields = new ArrayList<Ast.Field>();
+
+        if (peek(Token.Type.IDENTIFIER) && tokens.has(0)) {
+            while (peek(Token.Type.IDENTIFIER)) {
+                if (peek("LET")) {
+                    while (peek("LET")) {
+                        fields.add(parseField());
+                        if ((!peek("LET") && !peek("DEF")) && tokens.has(0)) {
+                            throw new ParseException("Not Valid Let or Def" + " At Index:" + parseIndex(true), tokens.get(0).getIndex());
+                        }
+                    }
+                }
+                if (peek("DEF")) {
+                    while (peek("DEF")) {
+                        methods.add(parseMethod());
+                        if (!peek("DEF") && tokens.has(0)) {
+                            throw new ParseException("Not Valid Def" + " At Index:" + parseIndex(true), tokens.get(0).getIndex());
+                        }
+                    }
+                }
+            }
+        }
+        if (!tokens.has(0))
+            return new Ast.Source(fields,methods);
+        else
+            throw new ParseException("Not Valid ID" + " At Index:" + tokens.get(0).getIndex(), tokens.get(0).getIndex());
     }
 
     /**
@@ -56,7 +94,46 @@ public final class Parser {
      * statement, then it is an expression/assignment statement.
      */
     public Ast.Stmt parseStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        if (peek("LET")) {
+            return parseDeclarationStatement();
+        } else if (peek("IF")) {
+            return parseIfStatement();
+        } else if (peek("FOR")) {
+            return parseForStatement();
+        } else if (peek("WHILE")) {
+            return parseWhileStatement();
+        } else if (peek("RETURN")) {
+            return parseReturnStatement();
+        } else {
+            Ast.Expr temp = parseExpression();
+            if (peek("=")) {
+                match("=");
+                Ast.Expr val = parseExpression();
+                if (peek(";")) {
+                    match(";");
+                    return new Ast.Stmt.Assignment(temp, val);
+                } else {
+                    if (tokens.has(0)) {
+                        throw new ParseException("Not Valid ;" + " At Index:" + tokens.get(0).getIndex(), tokens.get(0).getIndex());
+                    } else {
+                        throw new ParseException("Not Valid ;" + " At Index:" + (parseIndex(false)), parseIndex(false));
+                    }
+                }
+            } else {
+                if (peek(";")) {
+                    match(";");
+                    return new Ast.Stmt.Expression(temp);
+                } else {
+                    if (tokens.has(0))
+                        throw new ParseException("Not Valid ;" + " At Index:" + tokens.get(0).getIndex(),
+                                tokens.get(0).getIndex());
+                    else {
+                        throw new ParseException("Not Valid ;" + " At Index:" + (parseIndex(false)), parseIndex(false));
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -132,6 +209,7 @@ public final class Parser {
      */
     public Ast.Expr parseAdditiveExpression() throws ParseException {
         throw new UnsupportedOperationException(); //TODO
+        //Ast.Expr addend1 =
     }
 
     /**
