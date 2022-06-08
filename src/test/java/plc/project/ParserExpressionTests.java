@@ -151,6 +151,7 @@ final class ParserExpressionTests {
 
     private static Stream<Arguments> testBinaryExpression() {
         return Stream.of(
+
                 Arguments.of("Binary And",
                         Arrays.asList(
                                 //expr1 AND expr2
@@ -163,6 +164,20 @@ final class ParserExpressionTests {
                                 new Ast.Expr.Access(Optional.empty(), "expr2")
                         )
                 ),
+
+                Arguments.of("Binary Or",
+                        Arrays.asList(
+                                        //expr1 OR expr2
+                                        new Token(Token.Type.IDENTIFIER, "expr1", 0),
+                                        new Token(Token.Type.IDENTIFIER, "OR", 6),
+                                new Token(Token.Type.IDENTIFIER, "expr2", 10)
+                        ),
+                        new Ast.Expr.Binary("OR",
+                                new Ast.Expr.Access(Optional.empty(), "expr1"),
+                                new Ast.Expr.Access(Optional.empty(), "expr2")
+                        )
+                ),
+
                 Arguments.of("Binary Equality",
                         Arrays.asList(
                                 //expr1 == expr2

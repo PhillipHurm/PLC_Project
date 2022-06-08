@@ -16,7 +16,7 @@ import java.util.Optional;
  * #match(Object...)} are helpers to make the implementation easier.
  *
  * This type of parser is called <em>recursive descent</em>. Each rule in our
- * grammar will have it's own function, and reference to other rules correspond
+ * grammar will have its own function, and reference to other rules correspond
  * to calling that functions.
  */
 public final class Parser {
@@ -179,51 +179,123 @@ public final class Parser {
      */
     public Ast.Stmt.Return parseReturnStatement() throws ParseException {
         throw new UnsupportedOperationException(); //TODO
+        /*FIXME: This may or may not be correct, but it is not due til project 2B, so I will leave it here for now.
+        Ast.Stmt.Return ret = new Ast.Stmt.Return(parseExpression());
+        return ret;*/
     }
 
     /**
      * Parses the {@code expression} rule.
      */
     public Ast.Expr parseExpression() throws ParseException {
-        //TO DO: CHANGE THIS CODE!!! IT IS A SHORT-TERM "HACK" (see video at 10:00)
-        return parsePrimaryExpression();
-        //throw new UnsupportedOperationException(); //TODO
+        return parseLogicalExpression();
     }
 
     /**
      * Parses the {@code logical-expression} rule.
      */
     public Ast.Expr parseLogicalExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        Ast.Expr expr = parseEqualityExpression();
+        while (match("AND")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseEqualityExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        while (match("OR")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseEqualityExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        return expr;
     }
 
     /**
      * Parses the {@code equality-expression} rule.
      */
     public Ast.Expr parseEqualityExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        Ast.Expr expr = parseAdditiveExpression();
+        while (match("<")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseAdditiveExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        while (match("<=")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseAdditiveExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        while (match(">")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseAdditiveExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        while (match(">=")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseAdditiveExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        while (match("==")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseAdditiveExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        while (match("!=")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseAdditiveExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        return expr;
     }
 
     /**
      * Parses the {@code additive-expression} rule.
      */
     public Ast.Expr parseAdditiveExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-        //Ast.Expr addend1 =
+        Ast.Expr expr = parseMultiplicativeExpression();
+        while (match("+")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseMultiplicativeExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        while (match("-")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseMultiplicativeExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        return expr;
     }
 
     /**
      * Parses the {@code multiplicative-expression} rule.
      */
     public Ast.Expr parseMultiplicativeExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        Ast.Expr expr = parseSecondaryExpression();
+        while (match("*")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseSecondaryExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        while (match("/")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseSecondaryExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+        return expr;
     }
 
     /**
      * Parses the {@code secondary-expression} rule.
      */
     public Ast.Expr parseSecondaryExpression() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //FIXME: Implement this method!
+        Ast.Expr expr = parsePrimaryExpression();
+        while (match(".")) {
+            String operator = tokens.get(-1).getLiteral();
+            Ast.Expr right = parseSecondaryExpression();
+            expr = new Ast.Expr.Binary(operator, expr, right);
+        }
+
+            return expr;
     }
 
     /**
@@ -233,7 +305,6 @@ public final class Parser {
      * not strictly necessary.
      */
     public Ast.Expr parsePrimaryExpression() throws ParseException {
-        //throw new UnsupportedOperationException(); //TODO
         if (match("NIL")) {
             return new Ast.Expr.Literal(null);
         } else if (match("TRUE")) {
@@ -250,6 +321,15 @@ public final class Parser {
         }
         else if (match(Token.Type.IDENTIFIER)) {
             String name = tokens.get(-1).getLiteral();
+            if (match("(")) {
+                //FIXME: add case for multiple expressions separated by commas
+                Ast.Expr expr = parseExpression();
+                if (!match(")")) {
+                    //FIXME: replace -1 in next line with true index
+                    throw new ParseException("Expected closed parenthesis", -1);
+                }
+                return new Ast.Expr.Group(expr);
+            }
             return new Ast.Expr.Access(Optional.empty(), name);
         }
         else if (match(Token.Type.CHARACTER)) {
@@ -273,8 +353,8 @@ public final class Parser {
         }
 
         else {
-            throw new ParseException("Invalid primary exception", -1);
-            //TODO handle the actual index in line above
+            //FIXME: replace -1 in next line with true index
+            throw new ParseException("Invalid primary expression", -1);
             //Phillip Note:  The index can be found with token.getIndex(); is this the token index (wrong!) or
             // char index (correct!)?  If it is the wrong one, maybe we can use a similar char stream method from P1.
         }
