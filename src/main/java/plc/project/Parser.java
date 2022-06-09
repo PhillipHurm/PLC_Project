@@ -346,8 +346,8 @@ public final class Parser {
                 //FIXME: add case for multiple expressions separated by commas
                 Ast.Expr expr = parseExpression();
                 if (!match(")")) {
-                    //FIXME: replace -1 in next line with true index
-                    throw new ParseException("Expected closed parenthesis in parsePrimaryExpression", -1);
+                    throw new ParseException("Expected Closing Parenthesis in primary Expression" +
+                            " At Index:" + parseIndex(true), tokens.get(0).getIndex());
                 }
                 return new Ast.Expr.Group(expr);
             }
@@ -373,14 +373,14 @@ public final class Parser {
         else if (match("(")) {
             Ast.Expr expr = parseExpression();
             if (!match(")")) {
-                //FIXME: replace -1 in next line with true index
-                throw new ParseException("Expected closed parenthesis", -1);
+                throw new ParseException("Expected Closing Parenthesis" +
+                        " At Index:" + parseIndex(true), tokens.get(0).getIndex());
             }
             return new Ast.Expr.Group(expr);
         }
 
         else {
-            throw new ParseException("Invalid primary expression", );
+            throw new ParseException("Invalid primary expression", parseIndex(true));
             //Phillip Note:  The index can be found with token.getIndex(); is this the token index (wrong!) or
             // char index (correct!)?  If it is the wrong one, maybe we can use a similar char stream method from P1.
         }
