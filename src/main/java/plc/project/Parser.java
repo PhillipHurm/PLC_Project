@@ -355,8 +355,14 @@ public final class Parser {
         }
         else if (match(Token.Type.STRING)) {
             String string = tokens.get(-1).getLiteral();
+            string  = string.replace("\\n", "\n");
+            string  = string.replace("\\r", "\r");
+            string  = string.replace("\\t", "\t");
+            string  = string.replace("\\b", "\b");
+            string  = string.replace("\\\\", "\\");
+            string  = string.replace("\\\"", "\"");
+            string  = string.replace("\\\'", "\'");
             string = string.substring(1,string.length()-1);
-            //FIXME: Modify this method to handle escape characters (see test)
             return new Ast.Expr.Literal(string);
         }
 
