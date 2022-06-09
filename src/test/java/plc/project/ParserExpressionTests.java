@@ -165,7 +165,7 @@ final class ParserExpressionTests {
                         )
                 ),
 
-                Arguments.of("Binary Or",
+                Arguments.of("PHILLIP TEST Binary Or",
                         Arrays.asList(
                                         //expr1 OR expr2
                                         new Token(Token.Type.IDENTIFIER, "expr1", 0),
@@ -257,6 +257,18 @@ final class ParserExpressionTests {
                                 new Token(Token.Type.OPERATOR, ")", 5)
                         ),
                         new Ast.Expr.Function(Optional.empty(), "name", Arrays.asList())
+                ),
+                Arguments.of("PHILLIP TEST One Argument",
+                        Arrays.asList(
+                                //name()
+                                new Token(Token.Type.IDENTIFIER, "name", 0),
+                                new Token(Token.Type.OPERATOR, "(", 4),
+                                new Token(Token.Type.IDENTIFIER, "PHILLIP SAYS HI", 5),
+                                new Token(Token.Type.OPERATOR, ")", 10)
+                        ),
+                        new Ast.Expr.Function(Optional.empty(), "name", Arrays.asList(
+                                new Ast.Expr.Access(Optional.empty(), "PHILLIP SAYS HI")
+                        ))
                 ),
                 Arguments.of("Multiple Arguments",
                         Arrays.asList(

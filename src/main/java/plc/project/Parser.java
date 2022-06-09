@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.List;
 
 /**
  * The parser takes the sequence of tokens emitted by the lexer and turns that
@@ -287,16 +288,32 @@ public final class Parser {
      * Parses the {@code secondary-expression} rule.
      */
     public Ast.Expr parseSecondaryExpression() throws ParseException {
-        //FIXME: Implement this method!
         Ast.Expr expr = parsePrimaryExpression();
+        List<Ast.Expr> list = new ArrayList<Ast.Expr>();
         while (match(".")) {
-            String operator = tokens.get(-1).getLiteral();
-            Ast.Expr right = parseSecondaryExpression();
-            expr = new Ast.Expr.Binary(operator, expr, right);
+            if (!match(Token.Type.IDENTIFIER))
+                throw new ParseException("Token.Type.IDENTIFIER should follow '.'", -1);
+            else{
+                String functionName = tokens.get(-1).getLiteral();
+                if (match("(")) {
+                        expr = new Ast.Expr.Function(Optional.of(expr), functionName, list);
+                    //FIXME: Finish this part of function; might first need to fix line 341 (add case for multiple vals
+                    // separated by commas)
+                        /*while (match(",")) {
+                            list.add(expr);
+                            expr = new Ast.Expr.Function(Optional.of(expr), functionName, list);
+                        }*/
+                    if (!match(")")) {
+                        //FIXME: replace -1 in next line with true index
+                        throw new ParseException("Expected closed parenthesis in parseSecondaryExpression", -1);
+                    }
+                } else {
+                    expr = new Ast.Expr.Access(Optional.of(expr), functionName);
+                }
+            }
         }
-
-            return expr;
-    }
+                return expr;
+        }
 
     /**
      * Parses the {@code primary-expression} rule. This is the top-level rule
@@ -326,7 +343,7 @@ public final class Parser {
                 Ast.Expr expr = parseExpression();
                 if (!match(")")) {
                     //FIXME: replace -1 in next line with true index
-                    throw new ParseException("Expected closed parenthesis", -1);
+                    throw new ParseException("Expected closed parenthesis in parsePrimaryExpression", -1);
                 }
                 return new Ast.Expr.Group(expr);
             }
