@@ -297,21 +297,25 @@ public final class Parser {
                 String functionName = tokens.get(-1).getLiteral();
                 if (match("(")) {
                     expr = new Ast.Expr.Function(Optional.of(expr), functionName, list);
-                    //FIXME: Fix the following while loop; might first need to fix line 341 (add case for multiple vals
-                    // separated by commas)
-                        while (match(",")) {
-                            list.add(expr);
+                    while(!match(")")){
+                        list.add(parseExpression());
+                        if (!peek(")")){
+                            if(!peek(",")){
+                                throw new ParseException("Close Parenthesis", -1);
+                            }
+                            else if (peek(")")) {
+                                throw new ParseException("Comma before close parenthesis", -1);
+                            }
                             expr = new Ast.Expr.Function(Optional.of(expr), functionName, list);
                         }
-                    if (!match(")")) {
-                        //FIXME: replace -1 in next line with true index
-                        throw new ParseException("Expected closed parenthesis in parseSecondaryExpression", -1);
                     }
-                } else {
-                    expr = new Ast.Expr.Access(Optional.of(expr), functionName);
                 }
+                else {
+                    expr = new Ast.Expr.Access(Optional.of(expr), functionName);
             }
         }
+
+            }
                 return expr;
         }
 
@@ -376,8 +380,7 @@ public final class Parser {
         }
 
         else {
-            //FIXME: replace -1 in next line with true index
-            throw new ParseException("Invalid primary expression", -1);
+            throw new ParseException("Invalid primary expression", );
             //Phillip Note:  The index can be found with token.getIndex(); is this the token index (wrong!) or
             // char index (correct!)?  If it is the wrong one, maybe we can use a similar char stream method from P1.
         }
