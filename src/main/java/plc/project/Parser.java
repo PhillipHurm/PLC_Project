@@ -296,13 +296,13 @@ public final class Parser {
             else{
                 String functionName = tokens.get(-1).getLiteral();
                 if (match("(")) {
-                        expr = new Ast.Expr.Function(Optional.of(expr), functionName, list);
-                    //FIXME: Finish this part of function; might first need to fix line 341 (add case for multiple vals
+                    expr = new Ast.Expr.Function(Optional.of(expr), functionName, list);
+                    //FIXME: Fix the following while loop; might first need to fix line 341 (add case for multiple vals
                     // separated by commas)
-                        /*while (match(",")) {
+                        while (match(",")) {
                             list.add(expr);
                             expr = new Ast.Expr.Function(Optional.of(expr), functionName, list);
-                        }*/
+                        }
                     if (!match(")")) {
                         //FIXME: replace -1 in next line with true index
                         throw new ParseException("Expected closed parenthesis in parseSecondaryExpression", -1);
