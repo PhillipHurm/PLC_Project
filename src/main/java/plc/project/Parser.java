@@ -340,51 +340,88 @@ public final class Parser {
             BigDecimal num = new BigDecimal(tokens.get(-1).getLiteral());
             return new Ast.Expr.Literal(num);
         }
-        else if (match(Token.Type.IDENTIFIER)) {
-            String name = tokens.get(-1).getLiteral();
-            if (match("(")) {
-                //FIXME: add case for multiple expressions separated by commas
-                Ast.Expr expr = parseExpression();
-                if (!match(")")) {
-                    throw new ParseException("Expected Closing Parenthesis in primary Expression" +
-                            " At Index:" + parseIndex(true), tokens.get(0).getIndex());
-                }
-                return new Ast.Expr.Group(expr);
-            }
-            return new Ast.Expr.Access(Optional.empty(), name);
-        }
         else if (match(Token.Type.CHARACTER)) {
-            Character character = tokens.get(-1).getLiteral().charAt(1);
-            return new Ast.Expr.Literal(character);
+            if (tokens.get(-1).getLiteral().length() < 4) {
+                Character character = tokens.get(-1).getLiteral().charAt(1);
+                return new Ast.Expr.Literal(character);
+            }
+            else {
+                String string = tokens.get(-1).getLiteral();
+                string = string.replace("\\b", "\b");
+                string = string.replace("\\r", "\r");
+                string = string.replace("\\n", "\n");
+                string = string.replace("\\t", "\t");
+                string = string.replace("\\\"", "\"");
+                string = string.replace("\\\\", "\\");
+                string = string.replace("\\\'", "\'");
+
+                Character character = string.charAt(1);
+                return new Ast.Expr.Literal(character);
+            }
         }
+
         else if (match(Token.Type.STRING)) {
             String string = tokens.get(-1).getLiteral();
-            string  = string.replace("\\n", "\n");
-            string  = string.replace("\\r", "\r");
-            string  = string.replace("\\t", "\t");
-            string  = string.replace("\\b", "\b");
-            string  = string.replace("\\\\", "\\");
-            string  = string.replace("\\\"", "\"");
-            string  = string.replace("\\\'", "\'");
-            string = string.substring(1,string.length()-1);
+            string = string.replace("\\b", "\b");
+            string = string.replace("\\r", "\r");
+            string = string.replace("\\n", "\n");
+            string = string.replace("\\t", "\t");
+            string = string.replace("\\\"", "\"");
+            string = string.replace("\\\\", "\\");
+            string = string.replace("\\\'", "\'");
+            string = string.substring(1, string.length() - 1);
+            match(Token.Type.STRING);
             return new Ast.Expr.Literal(string);
         }
 
-        else if (match("(")) {
-            Ast.Expr expr = parseExpression();
-            if (!match(")")) {
-                throw new ParseException("Expected Closing Parenthesis" +
-                        " At Index:" + parseIndex(true), tokens.get(0).getIndex());
+        else if (peek("(")) {
+            match("(");
+            Ast.Expr.Group group = new Ast.Expr.Group(parseExpression());
+            if (peek(")")) {
+                match(")");
+                return group;
+            } else {
+                if (tokens.has(0)) {
+                    throw new ParseException("Invalid per no )" + " At Index:" + parseIndex(true), parseIndex(true));
+                }
+                else {
+                    throw new ParseException("Invalid per no )" + " At Index:" + parseIndex(false), parseIndex(false));
+                }
             }
-            return new Ast.Expr.Group(expr);
         }
 
+        else if (peek(Token.Type.IDENTIFIER)) {
+            String name = tokens.get(0).getLiteral();
+            match(Token.Type.IDENTIFIER);
+            if (peek("(")) {
+                match("(");
+                List<Ast.Expr> arguments = new ArrayList<Ast.Expr>();
+                while (!peek(")")) {
+                    arguments.add(parseExpression());
+                    if (peek(",")) {
+                        match(",");
+                        if (peek(")")) {
+                            throw new ParseException("Invalid per trailing comma" + " At Index:" + parseIndex(true), parseIndex(true));
+                        }
+                    }
+                }
+                match(")");
+                return new Ast.Expr.Function(Optional.empty(), name, arguments);
+            }
+            else {
+                return new Ast.Expr.Access(Optional.empty(), name);
+            }
+        }
         else {
-            throw new ParseException("Invalid primary expression", parseIndex(true));
-            //Phillip Note:  The index can be found with token.getIndex(); is this the token index (wrong!) or
-            // char index (correct!)?  If it is the wrong one, maybe we can use a similar char stream method from P1.
+            if (tokens.has(0)) {
+                throw new ParseException("invalid primary" + " INDEX:" + parseIndex(true), parseIndex(true));
+            }
+            else {
+                    throw new ParseException("invalid primary" + " INDEX:" + parseIndex(false), parseIndex(false));
+            }
         }
     }
+
 
     /**
      * As in the lexer, returns {@code true} if the current sequence of tokens
