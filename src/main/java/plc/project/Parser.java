@@ -143,7 +143,26 @@ public final class Parser {
      * statement, aka {@code LET}.
      */
     public Ast.Stmt.Declaration parseDeclarationStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        // LET identifier ('=' expression)? ';'
+
+        match("LET");
+
+        if(!match(Token.Type.IDENTIFIER)) {
+            throw new ParseException("Expected Identifier in Declaration Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        String name = tokens.get(-1).getLiteral();
+        Optional<Ast.Expr> value = Optional.empty();
+
+        if(match("=")) {
+            value = Optional.of(parseExpression());
+        }
+
+        if(!match(";")) {
+            throw new ParseException("Expected Semicolon in Declaration Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        return new Ast.Stmt.Declaration(name, value);
     }
 
     /**
@@ -161,7 +180,36 @@ public final class Parser {
      * {@code FOR}.
      */
     public Ast.Stmt.For parseForStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        // 'FOR' identifier 'IN' expression 'DO' statement* 'END'
+        match("FOR");
+
+        if (!match(Token.Type.IDENTIFIER)) {
+            throw new ParseException("Expected Identifier in For Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        String name = tokens.get(-1).getLiteral();
+
+        if (!match("IN")) {
+            throw new ParseException("Expected \"IN\" in For Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        //TODO: How can I make sure there is an expression here?
+        Ast.Expr value = parseExpression();
+
+        if (!match("DO")) {
+            throw new ParseException("Expected \"DO\" in For Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        List<Ast.Stmt> stmtArrayList = new ArrayList<>();
+        while(!peek("END")) {
+            stmtArrayList.add(parseStatement());
+        }
+
+        if (!match("END")) {
+            throw new ParseException("Expected \"END\" in For Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        return new Ast.Stmt.For(name, value, stmtArrayList);
     }
 
     /**
@@ -170,7 +218,27 @@ public final class Parser {
      * {@code WHILE}.
      */
     public Ast.Stmt.While parseWhileStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //'WHILE' expression 'DO' statement* 'END'
+
+        match("WHILE");
+
+        //TODO: How can I make sure there is an expression here?
+        Ast.Expr value = parseExpression();
+
+        if (!match("DO")) {
+            throw new ParseException("Expected \"DO\" in While Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        List<Ast.Stmt> stmtArrayList = new ArrayList<>();
+        while(!peek("END")) {
+            stmtArrayList.add(parseStatement());
+        }
+
+        if (!match("END")) {
+            throw new ParseException("Expected \"END\" in For Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        return new Ast.Stmt.While(value, stmtArrayList);
     }
 
     /**
@@ -179,10 +247,14 @@ public final class Parser {
      * {@code RETURN}.
      */
     public Ast.Stmt.Return parseReturnStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
-        /*FIXME: This may or may not be correct, but it is not due til project 2B, so I will leave it here for now.
-        Ast.Stmt.Return ret = new Ast.Stmt.Return(parseExpression());
-        return ret;*/
+        //'RETURN' expression ';'
+        match("RETURN");
+        Ast.Expr value = parseExpression();
+
+        if(!match(";")) {
+        throw new ParseException("Expected Semicolon in While Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+        return new Ast.Stmt.Return(value);
     }
 
     /**
