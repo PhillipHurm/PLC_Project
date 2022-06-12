@@ -434,7 +434,6 @@ public final class Parser {
      * {@code peek(Token.Type.IDENTIFIER)} and {@code peek("literal")}.
      */
     private boolean peek(Object... patterns) {
-        //throw new UnsupportedOperationException(); //TODO (in lecture)
         for (int i = 0; i < patterns.length; i++) {
             if (!tokens.has(i)) {
                 return false;
@@ -461,7 +460,6 @@ public final class Parser {
      * and advances the token stream.
      */
     private boolean match(Object... patterns) {
-        //throw new UnsupportedOperationException(); //TODO (in lecture)
         boolean peek = peek(patterns);
         if (peek) {
             for (int i = 0; i < patterns.length; i++)
