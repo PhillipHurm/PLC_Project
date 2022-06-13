@@ -79,7 +79,28 @@ public final class Parser {
      * next tokens start a field, aka {@code LET}.
      */
     public Ast.Field parseField() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //field ::= 'LET' identifier ('=' expression)? ';'
+        match("LET");
+
+        if(!match(Token.Type.IDENTIFIER)) {
+            throw new ParseException("Expected Identifier in Field" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        String name = tokens.get(-1).getLiteral();
+
+        Optional<Ast.Expr> value = Optional.empty();
+
+        if(match("=")){
+            value = Optional.of(parseExpression());
+        }
+
+        if(!match(";")) {
+            throw new ParseException("Expected Semicolon in Field" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        Ast.Field field = new Ast.Field(name, value);
+
+        return field;
     }
 
     /**
