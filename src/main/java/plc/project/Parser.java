@@ -109,6 +109,8 @@ public final class Parser {
      */
     public Ast.Method parseMethod() throws ParseException {
         throw new UnsupportedOperationException(); //TODO
+        //'DEF' identifier '(' (identifier (',' identifier)*)? ')' 'DO' statement* 'END'
+        //match("DEF");
     }
 
     /**
@@ -423,10 +425,10 @@ public final class Parser {
                         list.add(parseExpression());
                         if (!peek(")")){
                             if(!peek(",")){
-                                throw new ParseException("Close Parenthesis", -1);
+                                throw new ParseException("Expected Closed Parenthesis in Secondary Expression" + " At Index:" + parseIndex(true), parseIndex(true));
                             }
                             else if (peek(")")) {
-                                throw new ParseException("Comma before close parenthesis", -1);
+                                throw new ParseException("Expected Comma Before Closing Parenthesis" + " At Index:" + parseIndex(true), parseIndex(true));
                             }
                             expr = new Ast.Expr.Function(Optional.of(expr), functionName, list);
                         }
