@@ -1,5 +1,6 @@
 package plc.project;
 
+import java.sql.Array;
 import java.util.List;
 import java.math.BigInteger;
 import java.math.BigDecimal;
@@ -171,7 +172,36 @@ public final class Parser {
      * {@code IF}.
      */
     public Ast.Stmt.If parseIfStatement() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //'IF' expression 'DO' statement* ('ELSE' statement*)? 'END'
+        match("IF");
+
+        Ast.Expr value = parseExpression();
+
+        if (!match("DO")) {
+            throw new ParseException("Expected \"DO\" in If Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        List<Ast.Stmt> thenStatements = new ArrayList<Ast.Stmt>();
+        List<Ast.Stmt> elseStatements = new ArrayList<Ast.Stmt>();
+
+        while(!peek("END")) {
+            thenStatements.add(parseStatement());
+            if (peek("ELSE")) {
+                match("ELSE");
+                while(!peek("END")){
+                    elseStatements.add(parseStatement());
+                    if (!tokens.has(0)) {
+                        throw new ParseException("Expected \"END\" in If Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+                    }
+                }
+            }
+            if (!tokens.has(0)) {
+                throw new ParseException("Expected \"END\" in If Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+            }
+        }
+
+        match("END");
+        return new Ast.Stmt.If(value, thenStatements, elseStatements);
     }
 
     /**
@@ -193,7 +223,6 @@ public final class Parser {
             throw new ParseException("Expected \"IN\" in For Statement" + " At Index:" + parseIndex(true), parseIndex(true));
         }
 
-        //TODO: How can I make sure there is an expression here?
         Ast.Expr value = parseExpression();
 
         if (!match("DO")) {
@@ -222,7 +251,6 @@ public final class Parser {
 
         match("WHILE");
 
-        //TODO: How can I make sure there is an expression here?
         Ast.Expr value = parseExpression();
 
         if (!match("DO")) {
@@ -249,6 +277,7 @@ public final class Parser {
     public Ast.Stmt.Return parseReturnStatement() throws ParseException {
         //'RETURN' expression ';'
         match("RETURN");
+
         Ast.Expr value = parseExpression();
 
         if(!match(";")) {
