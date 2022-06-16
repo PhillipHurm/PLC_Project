@@ -108,17 +108,53 @@ public final class Parser {
      * next tokens start a method, aka {@code DEF}.
      */
     public Ast.Method parseMethod() throws ParseException {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
         //'DEF' identifier '(' (identifier (',' identifier)*)? ')' 'DO' statement* 'END'
-        //match("DEF");
-    }
 
-    /**
-     * Parses the {@code statement} rule and delegates to the necessary method.
-     * If the next tokens do not start a declaration, if, while, or return
-     * statement, then it is an expression/assignment statement.
-     */
-    public Ast.Stmt parseStatement() throws ParseException {
+        match("DEF");
+
+        if(!match(Token.Type.IDENTIFIER)) {
+            throw new ParseException("Expected Identifier in Method" + " At Index:" + parseIndex(true),
+                    parseIndex(true));
+        }
+
+        String name = tokens.get(-1).getLiteral();
+        List<String> parameters = new ArrayList<>();
+        List<Ast.Stmt> statements = new ArrayList<>();
+
+        if(!match("(")) {
+            throw new ParseException("Expected Open Parenthesis in Method" + " At Index:" + parseIndex(true),
+                    parseIndex(true));
+        }
+
+        while(!match(")")) {
+            parameters.add(tokens.get(-1).getLiteral());
+            if (!peek(")")) {
+                while (match(",")) {
+                    parameters.add(tokens.get(-1).getLiteral());
+                }
+            }
+        }
+
+        if (!match("DO")) {
+            throw new ParseException("Expected \"DO\" in Method" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        while(!peek("END"))
+        {
+            statements.add(parseStatement());
+        }
+        match("END");
+
+        return new Ast.Method(name, parameters, statements);
+            }
+
+            /**
+             * Parses the {@code statement} rule and delegates to the necessary method.
+             * If the next tokens do not start a declaration, if, while, or return
+             * statement, then it is an expression/assignment statement.
+             */
+            public Ast.Stmt parseStatement() throws ParseException {
         //throw new UnsupportedOperationException(); //TODO
         if (peek("LET")) {
             return parseDeclarationStatement();
