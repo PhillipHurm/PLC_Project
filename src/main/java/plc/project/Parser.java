@@ -54,7 +54,7 @@ public final class Parser {
                     while (peek("LET")) {
                         fields.add(parseField());
                         if ((!peek("LET") && !peek("DEF")) && tokens.has(0)) {
-                            throw new ParseException("Not Valid Let or Def" + " At Index:" + parseIndex(true), tokens.get(0).getIndex());
+                            throw new ParseException("Not Valid Let or Def" + " At Index:" + parseIndex(true), parseIndex(true));
                         }
                     }
                 }
@@ -62,7 +62,7 @@ public final class Parser {
                     while (peek("DEF")) {
                         methods.add(parseMethod());
                         if (!peek("DEF") && tokens.has(0)) {
-                            throw new ParseException("Not Valid Def" + " At Index:" + parseIndex(true), tokens.get(0).getIndex());
+                            throw new ParseException("Not Valid Def" + " At Index:" + parseIndex(true), parseIndex(true));
                         }
                     }
                 }
@@ -71,7 +71,7 @@ public final class Parser {
         if (!tokens.has(0))
             return new Ast.Source(fields,methods);
         else
-            throw new ParseException("Not Valid ID" + " At Index:" + tokens.get(0).getIndex(), tokens.get(0).getIndex());
+            throw new ParseException("Not Valid ID" + " At Index:" + parseIndex(true), parseIndex(true));
     }
 
     /**
@@ -176,7 +176,7 @@ public final class Parser {
                     return new Ast.Stmt.Assignment(temp, val);
                 } else {
                     if (tokens.has(0)) {
-                        throw new ParseException("Not Valid ;" + " At Index:" + tokens.get(0).getIndex(), tokens.get(0).getIndex());
+                        throw new ParseException("Not Valid ;" + " At Index:" + parseIndex(true), parseIndex(true));
                     } else {
                         throw new ParseException("Not Valid ;" + " At Index:" + (parseIndex(false)), parseIndex(false));
                     }
@@ -187,8 +187,8 @@ public final class Parser {
                     return new Ast.Stmt.Expression(temp);
                 } else {
                     if (tokens.has(0))
-                        throw new ParseException("Not Valid ;" + " At Index:" + tokens.get(0).getIndex(),
-                                tokens.get(0).getIndex());
+                        throw new ParseException("Not Valid ;" + " At Index:" + parseIndex(true), parseIndex(true));
+
                     else {
                         throw new ParseException("Not Valid ;" + " At Index:" + (parseIndex(false)), parseIndex(false));
                     }
