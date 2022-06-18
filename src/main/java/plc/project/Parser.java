@@ -241,7 +241,7 @@ public final class Parser {
                 throw new ParseException("Expected \"DO\" in If Statement" + " At Index:" + parseIndex(true), parseIndex(true));
             }
             else {
-                throw new ParseException("no DO" + " INDEX:" + (parseIndex(false)), parseIndex(false));
+                throw new ParseException("Expected \"DO\" in If Statement" + " At Index:" + (parseIndex(false)), parseIndex(false));
             }
         }
 
