@@ -237,7 +237,12 @@ public final class Parser {
         Ast.Expr value = parseExpression();
 
         if (!match("DO")) {
-            throw new ParseException("Expected \"DO\" in If Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+            if (tokens.has(0)) {
+                throw new ParseException("Expected \"DO\" in If Statement" + " At Index:" + parseIndex(true), parseIndex(true));
+            }
+            else {
+                throw new ParseException("no DO" + " INDEX:" + (parseIndex(false)), parseIndex(false));
+            }
         }
 
         List<Ast.Stmt> thenStatements = new ArrayList<Ast.Stmt>();
