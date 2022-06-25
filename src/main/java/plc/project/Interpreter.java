@@ -25,7 +25,16 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Source ast) {
-        throw new UnsupportedOperationException(); //TODO
+
+        //throw new UnsupportedOperationException(); //TODO
+        for (Ast.Field field : ast.getFields()) {
+            visit(field);
+        }
+        for(Ast.Method method : ast.getMethods()) {
+            visit(method);
+        }
+        return 1;
+    }
     }
 
     @Override
