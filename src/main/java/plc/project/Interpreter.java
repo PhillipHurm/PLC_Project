@@ -60,7 +60,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
             scope.defineVariable (ast.getName(), visit (ast.getValue().get()));
         }
         else {
-            scope.defineVariable (ast.getName(), );
+            scope.defineVariable (ast.getName(), Environment.NIL);
         }
         return Environment.NIL;
     }
