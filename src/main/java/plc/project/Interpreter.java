@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import plc.project.Environment.PlcObject;
 
 public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
@@ -30,11 +31,11 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
         for (Ast.Field field : ast.getFields()) {
             visit(field);
         }
-        for(Ast.Method method : ast.getMethods()) {
+        for (Ast.Method method : ast.getMethods()) {
             visit(method);
         }
-        return 1;
-    }
+        List<PlcObject> Objs = new ArrayList<PlcObject>();
+        return scope.lookupFunction("main", 0).invoke(Objs);
     }
 
     @Override
