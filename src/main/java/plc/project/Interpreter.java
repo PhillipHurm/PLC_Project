@@ -107,12 +107,20 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Return ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        Environment.PlcObject value = visit(ast.getValue());
+        throw new Return(value);
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Literal ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        if(ast.getLiteral() == null){
+            return Environment.NIL;
+        }
+        else {
+            return Environment.create(ast.getLiteral());
+        }
     }
 
     @Override
