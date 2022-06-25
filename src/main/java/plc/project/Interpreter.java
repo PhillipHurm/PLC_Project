@@ -28,11 +28,11 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     public Environment.PlcObject visit(Ast.Source ast) {
 
         //throw new UnsupportedOperationException(); //TODO
-        for (Ast.Field field : ast.getFields()) {
-            visit(field);
+        for (Ast.Field fields : ast.getFields()) {
+            visit(fields);
         }
-        for (Ast.Method method : ast.getMethods()) {
-            visit(method);
+        for (Ast.Method methods : ast.getMethods()) {
+            visit(methods);
         }
         List<PlcObject> Objs = new ArrayList<PlcObject>();
         return scope.lookupFunction("main", 0).invoke(Objs);
