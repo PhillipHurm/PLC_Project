@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import plc.project.Environment.PlcObject;
@@ -27,7 +28,18 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     @Override
     public Environment.PlcObject visit(Ast.Source ast) {
 
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        {
+            for (Ast.Field fields : ast.getFields())
+            {
+                visit(fields);
+            }
+            for (Ast.Method methods: ast.getMethods())
+            {
+                visit(methods);
+            }
+            return scope.lookupFunction("main", 0).invoke(Arrays.asList());
+        }
 
 
     }
@@ -46,8 +58,30 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Method ast) {
-        throw new UnsupportedOperationException(); //TODO
-
+        //throw new UnsupportedOperationException(); //TODO
+        {
+            scope.defineFunction(ast.getName(), ast.getParameters().size(), args -> {
+                try {
+                    scope = new Scope(scope);
+                    ast.getParameters().forEach(name -> {
+                        args.forEach(value -> {
+                            scope.defineVariable(name, value);
+                        });
+                    });
+                    for (Ast.Stmt stmt: ast.getStatements()) {
+                        visit(stmt);
+                    }
+                    return Environment.NIL;
+                }
+                catch (Return temp) {
+                    return temp.value;
+                }
+                finally {
+                    scope = scope.getParent();
+                }
+            });
+            return Environment.NIL;
+        }
     }
 
     @Override
@@ -93,12 +127,15 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
                 for (Ast.Stmt stmt : ast.getStatements()) {
                     visit(stmt);
                 }
-            } finally {
+            }
+            finally {
                 scope = scope.getParent();
             }
         }
         return Environment.NIL;
     }
+
+
 
     @Override
     public Environment.PlcObject visit(Ast.Stmt.Return ast) {
@@ -120,17 +157,38 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Group ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        return visit(ast.getExpression());
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Binary ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        switch (ast.getOperator()) {
+            case "+":
+                if (visit(ast.getLeft()).getValue() instanceof String || visit(ast.getRight()).getValue() instanceof String ) {
+                    return Environment.create(visit(ast.getLeft()).getValue() + (String)visit(ast.getRight()).getValue());
+                }
+                if (visit(ast.getLeft()).getClass().equals(visit(ast.getRight()).getClass())) {
+                    if (visit(ast.getLeft()).getValue() instanceof BigDecimal && visit(ast.getRight()).getValue() instanceof BigDecimal) {
+                        return Environment.create(((BigDecimal) visit(ast.getLeft()).getValue()).add((BigDecimal) visit(ast.getRight()).getValue()));
+                    }
+                    if (visit(ast.getLeft()).getValue() instanceof BigInteger && visit(ast.getRight()).getValue() instanceof BigInteger) {
+                        return Environment.create(((BigInteger) visit(ast.getLeft()).getValue()).add((BigInteger)visit(ast.getRight()).getValue()));
+                    }
+                }
+                throw new RuntimeException();
+        }
+        throw new RuntimeException();
     }
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Access ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        if (ast.getReceiver().isPresent()) {
+            return visit(ast.getReceiver().get()).getField(ast.getName()).getValue();
+        }
+        return scope.lookupVariable(ast.getName()).getValue();
     }
 
     @Override
