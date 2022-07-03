@@ -346,6 +346,7 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
     @Override
     public Environment.PlcObject visit(Ast.Expr.Function ast) {
         throw new UnsupportedOperationException(); //TODO
+
     }
 
     /**
