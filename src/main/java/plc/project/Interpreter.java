@@ -345,7 +345,26 @@ public class Interpreter implements Ast.Visitor<Environment.PlcObject> {
 
     @Override
     public Environment.PlcObject visit(Ast.Expr.Function ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+
+        List<Environment.PlcObject> args = new ArrayList<>();
+
+        for (Ast.Expr argument : ast.getArguments()) {
+            args.add(visit(argument));
+        }
+
+        if (ast.getReceiver().isPresent()) {
+            Environment.PlcObject obj = visit(ast.getReceiver().get());
+
+            return obj.callMethod(ast.getName(),args);
+        }
+        else {
+            Environment.Function function = scope.lookupFunction(ast.getName(),ast.getArguments().size());
+
+            return function.invoke(args);
+
+        }
+
 
     }
 
