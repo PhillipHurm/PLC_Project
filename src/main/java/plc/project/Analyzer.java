@@ -69,7 +69,7 @@ public final class Analyzer implements Ast.Visitor<Void> {
             type = Environment.getType(typeName);
         }
         if (!ast.getTypeName().isPresent() && !ast.getValue().isPresent()) {
-            throw new RuntimeException("Decleration must have type or value to infer type.");
+            throw new RuntimeException("Declaration must have type or value to infer type.");
         }
 
         if (ast.getTypeName().isPresent()) {
