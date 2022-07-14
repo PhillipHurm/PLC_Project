@@ -29,10 +29,7 @@ final class InterpreterTests {
         return Stream.of(
                 Arguments.of("Main", new Ast.Source(
                         Arrays.asList(),
-                        Arrays.asList(new Ast.Method("main", Arrays.asList(), Arrays.asList(
-                                new Ast.Stmt.Return(new Ast.Expr.Literal(BigInteger.ZERO)))
-                        ))
-                ), BigInteger.ZERO),
+                        Arrays.asList(new Ast.Method("main", Arrays.asList(), Arrays.asList(new Ast.Stmt.Return(new Ast.Expr.Literal(BigInteger.ZERO)))))), BigInteger.ZERO),
                 Arguments.of("Fields & No Return", new Ast.Source(
                         Arrays.asList(
                                 new Ast.Field("x", Optional.of(new Ast.Expr.Literal(BigInteger.ONE))),
