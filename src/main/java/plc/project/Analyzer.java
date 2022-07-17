@@ -49,28 +49,13 @@ public final class Analyzer implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Stmt.Declaration ast) {
         //throw new UnsupportedOperationException();
-        Optional<String> optTypeName = ast.getTypeName();
-        Optional<Ast.Expr> optValue = ast.getValue();
+        //'LET' identifier (':' identifier)? ('=' expression)? ';
 
-        if(!optTypeName.isPresent() && !optValue.isPresent()) {
+        if (!ast.getTypeName().isPresent() && !ast.getValue().isPresent()) {
             throw new RuntimeException("Declaration must have type or value to infer type.");
         }
 
         Environment.Type type = null;
-
-        if(optTypeName.isPresent()) {
-            type = Environment.getType(optTypeName.get());
-
-            Object obj = optTypeName.get();
-            String typeName = null;
-            if (obj instanceof String) {
-                typeName = (String) obj;
-            }
-            type = Environment.getType(typeName);
-        }
-        if (!ast.getTypeName().isPresent() && !ast.getValue().isPresent()) {
-            throw new RuntimeException("Declaration must have type or value to infer type.");
-        }
 
         if (ast.getTypeName().isPresent()) {
             type = Environment.getType(ast.getTypeName().get());
@@ -110,7 +95,18 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.While ast) {
-        throw new UnsupportedOperationException();  // TODO
+        //throw new UnsupportedOperationException();  // TODO
+        visit(ast.getCondition());
+        requireAssignable(Environment.Type.BOOLEAN, ast.getCondition().getType());
+        try {
+            scope = new Scope(scope);
+            for (Ast.Stmt stmt : ast.getStatements()) {
+                visit(stmt);
+            }
+        } finally {
+            scope = scope.getParent();
+        }
+        return null;
     }
 
     @Override
