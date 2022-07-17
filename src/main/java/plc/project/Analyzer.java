@@ -90,7 +90,28 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Stmt.For ast) {
-        throw new UnsupportedOperationException();  // TODO
+        //throw new UnsupportedOperationException();  // TODO
+        visit(ast.getValue());
+        requireAssignable(Environment.Type.INTEGER_ITERABLE, ast.getValue().getType());
+
+        if(ast.getStatements().isEmpty()) {
+            throw new RuntimeException("For loop must contain statements");
+        }
+
+        Environment.Type type = null;
+
+        try {
+            scope = new Scope(scope);
+            for (Ast.Stmt stmt : ast.getStatements()) {
+                visit(stmt);
+            }
+        } finally {
+            scope = scope.getParent();
+        }
+
+        scope.defineVariable(ast.getName(), ast.getName(), Environment.Type.INTEGER, Environment.NIL);
+
+        return null;
     }
 
     @Override
