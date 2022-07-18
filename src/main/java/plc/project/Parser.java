@@ -79,7 +79,8 @@ public final class Parser {
      * next tokens start a field, aka {@code LET}.
      */
     public Ast.Field parseField() throws ParseException {
-        //field ::= 'LET' identifier ('=' expression)? ';'
+        //Updated for Part 4
+        //field ::= 'LET' identifier ':' identifier ('=' expression)? ';'
         match("LET");
 
         if(!match(Token.Type.IDENTIFIER)) {
@@ -87,6 +88,17 @@ public final class Parser {
         }
 
         String name = tokens.get(-1).getLiteral();
+
+        if(!match(":")) {
+            throw new ParseException("Expected Colon in Field" + " At Index:" + parseIndex(true),
+                    parseIndex(true));
+        }
+
+        if(!match(Token.Type.IDENTIFIER)) {
+            throw new ParseException("Expected Identifier in Field" + " At Index:" + parseIndex(true), parseIndex(true));
+        }
+
+        String typeName = tokens.get(-1).getLiteral();
 
         Optional<Ast.Expr> value = Optional.empty();
 
@@ -98,7 +110,7 @@ public final class Parser {
             throw new ParseException("Expected Semicolon in Field" + " At Index:" + parseIndex(true), parseIndex(true));
         }
 
-        Ast.Field field = new Ast.Field(name, value);
+        Ast.Field field = new Ast.Field(name, typeName, value);
 
         return field;
     }
@@ -108,8 +120,8 @@ public final class Parser {
      * next tokens start a method, aka {@code DEF}.
      */
     public Ast.Method parseMethod() throws ParseException {
-        //throw new UnsupportedOperationException(); //TODO
-        //'DEF' identifier '(' (identifier (',' identifier)*)? ')' 'DO' statement* 'END'
+        //Updated for Part 4
+        //'DEF' identifier '(' (identifier ':' identifier (',' identifier ':' identifier)*)? ')' (':' identifier)? 'DO' statement* 'END'
 
         match("DEF");
 
@@ -120,6 +132,8 @@ public final class Parser {
 
         String name = tokens.get(-1).getLiteral();
         List<String> parameters = new ArrayList<>();
+        List <String> parameterTypeNames = new ArrayList<>();
+        Optional <String> returnTypeName = Optional.empty();
         List<Ast.Stmt> statements = new ArrayList<>();
 
         if(!match("(")) {
@@ -129,11 +143,24 @@ public final class Parser {
 
         while(!match(")")) {
             parameters.add(tokens.get(-1).getLiteral());
+            if(!match(":")) {
+                throw new ParseException("Expected Colon in Method" + " At Index:" + parseIndex(true),
+                        parseIndex(true));
+            }
+            parameterTypeNames.add(tokens.get(-1).getLiteral());
             if (!peek(")")) {
                 while (match(",")) {
                     parameters.add(tokens.get(-1).getLiteral());
                 }
             }
+        }
+
+        if(match(":")){
+            if(!match(Token.Type.IDENTIFIER)) {
+                throw new ParseException("Expected Identifier in Method" + " At Index:" + parseIndex(true),
+                        parseIndex(true));
+            }
+            returnTypeName = Optional.of(tokens.get(-1).getLiteral());
         }
 
         if (!match("DO")) {
@@ -146,7 +173,8 @@ public final class Parser {
         }
         match("END");
 
-        return new Ast.Method(name, parameters, statements);
+        //String name, List <String> parameters, List <String> parameterTypeNames, Optional <String> returnTypeName, List <Stmt> statements
+        return new Ast.Method(name, parameters, parameterTypeNames, returnTypeName, statements);
             }
 
             /**
@@ -203,7 +231,8 @@ public final class Parser {
      * statement, aka {@code LET}.
      */
     public Ast.Stmt.Declaration parseDeclarationStatement() throws ParseException {
-        // LET identifier ('=' expression)? ';'
+        //Updated for Part 4
+        // LET identifier (':' identifier)? ('=' expression)? ';'
 
         match("LET");
 
@@ -212,7 +241,16 @@ public final class Parser {
         }
 
         String name = tokens.get(-1).getLiteral();
+        Optional<String> typeName = Optional.empty();
         Optional<Ast.Expr> value = Optional.empty();
+
+        if(match(":")){
+            if(!match(Token.Type.IDENTIFIER)) {
+                throw new ParseException("Expected Identifier in Method" + " At Index:" + parseIndex(true),
+                        parseIndex(true));
+            }
+            typeName = Optional.of(tokens.get(-1).getLiteral());
+        }
 
         if(match("=")) {
             value = Optional.of(parseExpression());
@@ -222,7 +260,7 @@ public final class Parser {
             throw new ParseException("Expected Semicolon in Declaration Statement" + " At Index:" + parseIndex(true), parseIndex(true));
         }
 
-        return new Ast.Stmt.Declaration(name, value);
+        return new Ast.Stmt.Declaration(name, typeName, value);
     }
 
     /**
