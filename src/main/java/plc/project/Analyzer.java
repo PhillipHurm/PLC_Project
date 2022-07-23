@@ -57,8 +57,29 @@ public final class Analyzer implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Method ast) {
         //throw new UnsupportedOperationException();  // TODO
+        List<Environment.Type> prm = new ArrayList<>();
+        if (ast.getParameters().isEmpty() == false) {
+            for (int i = 0; i < ast.getParameterTypeNames().size(); i++) {
+                prm.add(Environment.getType(ast.getParameterTypeNames().get(i)));
+            }
+        }
+        Environment.Function f = scope.defineFunction(ast.getName(), ast.getName(),
+                prm, Environment.getType(ast.getReturnTypeName().get()), args -> Environment.NIL);
+        ast.setFunction(f);
+        try {
+            scope = new Scope(scope);
+            scope.defineVariable("Ret", "Ret", Environment.getType(ast.getReturnTypeName().get()), Environment.NIL);
+            for (int i = 0; i < ast.getStatements().size(); i++) {
+                visit(ast.getStatements().get(i));
+            }
+            for (int i = 0; i < ast.getParameters().size(); i++) {
+                scope.defineVariable(ast.getParameters().get(i), ast.getParameters().get(i),
+                        Environment.getType(ast.getParameterTypeNames().get(i)), Environment.NIL);
+            }
+        } finally {
+            scope = scope.getParent();
+        }
         return null;
-
     }
 
     @Override
@@ -208,30 +229,24 @@ public final class Analyzer implements Ast.Visitor<Void> {
         //throw new UnsupportedOperationException();  // TODO
         if (ast.getLiteral() == null) {
             ast.setType(Environment.Type.NIL);
-        }
-        else if (ast.getLiteral() instanceof Character) {
+        } else if (ast.getLiteral() instanceof Character) {
             ast.setType(Environment.Type.CHARACTER);
-        }
-        else if (ast.getLiteral() instanceof Boolean) {
+        } else if (ast.getLiteral() instanceof Boolean) {
             ast.setType(Environment.Type.BOOLEAN);
-        }
-        else if (ast.getLiteral() instanceof String) {
+        } else if (ast.getLiteral() instanceof String) {
             ast.setType(Environment.Type.STRING);
-        }
-        else if (ast.getLiteral() instanceof BigDecimal) {
+        } else if (ast.getLiteral() instanceof BigDecimal) {
             double checkVal = ((BigDecimal) ast.getLiteral()).doubleValue();
             if (checkVal == Double.NEGATIVE_INFINITY || checkVal == Double.POSITIVE_INFINITY) {
                 throw new RuntimeException();
             } else {
                 ast.setType(Environment.Type.DECIMAL);
             }
-        }
-        else if (ast.getLiteral() instanceof BigInteger) {
+        } else if (ast.getLiteral() instanceof BigInteger) {
             if (((BigInteger) ast.getLiteral()).compareTo(BigInteger.valueOf(Integer.MAX_VALUE)) <= 0 &&
                     ((BigInteger) ast.getLiteral()).compareTo(BigInteger.valueOf(Integer.MIN_VALUE)) >= 0) {
                 ast.setType(Environment.Type.INTEGER);
-            }
-            else {
+            } else {
                 throw new RuntimeException();
             }
         }
@@ -241,7 +256,8 @@ public final class Analyzer implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Expr.Group ast) {
-        throw new UnsupportedOperationException();  // TODO
+        //throw new UnsupportedOperationException();  // TODO
+        return visit(ast.getExpression());
     }
 
     @Override
@@ -345,39 +361,40 @@ public final class Analyzer implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Expr.Function ast) {
         //throw new UnsupportedOperationException();  // TODO
-        if(ast.getReceiver().isPresent()) {
+        if (ast.getReceiver().isPresent()) {
             visit(ast.getReceiver().get());
-            for(int i = 0; i < ast.getArguments().size(); i++) {
+            for (int i = 0; i < ast.getArguments().size(); i++) {
                 visit(ast.getArguments().get(i));
             }
             Ast.Expr rcvr = ast.getReceiver().get();
             ast.setFunction(rcvr.getType().getMethod(ast.getName(), ast.getArguments().size()));
-            for(int i = 0; i < ast.getArguments().size(); i++) {
+            for (int i = 0; i < ast.getArguments().size(); i++) {
                 requireAssignable(ast.getFunction().getParameterTypes().get(i + 1), ast.getArguments().get(i).getType());
             }
             return null;
         }
 
-        for(int i = 0; i < ast.getArguments().size(); i++) {
+        for (int i = 0; i < ast.getArguments().size(); i++) {
             visit(ast.getArguments().get(i));
         }
         ast.setFunction(scope.lookupFunction(ast.getName(), ast.getArguments().size()));
         return null;
     }
 
-        public static void requireAssignable (Environment.Type target, Environment.Type type){
-            //throw new UnsupportedOperationException();  // TODO
-            if (target == Environment.Type.COMPARABLE) {
-                if (type == Environment.Type.INTEGER || type == Environment.Type.CHARACTER || type == Environment.Type.STRING || type == Environment.Type.DECIMAL) {
-                    return;
-                }
-            }
-            if (target == type) {
+    public static void requireAssignable(Environment.Type target, Environment.Type type) {
+        //throw new UnsupportedOperationException();  // TODO
+        if (target == Environment.Type.COMPARABLE) {
+            if (type == Environment.Type.INTEGER || type == Environment.Type.CHARACTER || type == Environment.Type.STRING || type == Environment.Type.DECIMAL) {
                 return;
             }
-            if (target == Environment.Type.ANY) {
-                return;
-            }
-            throw new RuntimeException();
         }
+        if (target == type) {
+            return;
+        }
+        if (target == Environment.Type.ANY) {
+            return;
+        }
+        throw new RuntimeException();
     }
+
+}
