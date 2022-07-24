@@ -96,8 +96,7 @@ public class GeneratorTests {
                                 Arrays.asList(new Ast.Stmt.Expression(init(new Ast.Expr.Access(Optional.empty(), "stmt"), ast -> ast.setVariable(new Environment.Variable("stmt", "stmt", Environment.Type.NIL, Environment.NIL))))),
                                 Arrays.asList()
                         ),
-                        String.join(System.lineSeparator(),
-                                "if (expr) {",
+                        String.join(System.lineSeparator(), "if (expr) {",
                                 "    stmt;",
                                 "}"
                         )
