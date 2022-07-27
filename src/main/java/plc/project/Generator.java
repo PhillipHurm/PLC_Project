@@ -72,8 +72,29 @@ public final class Generator implements Ast.Visitor<Void> {
 
     @Override
     public Void visit(Ast.Method ast) {
-        throw new UnsupportedOperationException(); //TODO
+        //throw new UnsupportedOperationException(); //TODO
+        print(ast.getFunction().getReturnType().getJvmName()," ",ast.getName(),"(");
+        for (int i = 0; i < ast.getParameters().size(); i++) {
+            print(Environment.getType(ast.getParameterTypeNames().get(i)).getJvmName()," ",ast.getParameters().get(i));
+            if (!(i == ast.getParameters().size() - 1)) {
+                print(", ");
+            }
+        }
+        print(") {");
 
+        if (!ast.getStatements().isEmpty())
+        {
+            newline(++indent);
+            for (int i = 0; i < ast.getStatements().size(); i++) {
+                if (i != 0){
+                    newline(indent);
+                }
+                print(ast.getStatements().get(i));
+            }
+            newline(--indent);
+        }
+        print("}");
+        return null;
     }
 
     @Override
@@ -105,12 +126,51 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Stmt.If ast) {
         //throw new UnsupportedOperationException(); //TODO
+        print("if (", ast.getCondition(), ") {");
+        if (!ast.getThenStatements().isEmpty())
+        {
+            newline(++indent);
+            for (int i = 0; i < ast.getThenStatements().size(); i++) {
+                if (i != 0){
+                    newline(indent);
+                }
+                print(ast.getThenStatements().get(i));
+            }
+            newline(--indent);
+        }
+        print("}");
+
+        if (!ast.getElseStatements().isEmpty())
+        {
+            print(" else {");
+            newline(++indent);
+            for (int i = 0; i < ast.getElseStatements().size(); i++){
+                if (i != 0){
+                    newline(indent);
+                }
+                print(ast.getElseStatements().get(i));
+            }
+            newline(--indent);
+            print("}");
+        }
         return null;
     }
 
     @Override
     public Void visit(Ast.Stmt.For ast) {
         //throw new UnsupportedOperationException(); //TODO
+        print("for (int ", ast.getName(), " : ", ast.getValue(), ") {");
+        if (!ast.getStatements().isEmpty()) {
+            newline(++indent);
+            for (int i = 0; i < ast.getStatements().size(); i++) {
+                if (i != 0) {
+                    newline(indent);
+                }
+                print(ast.getStatements().get(i));
+            }
+            newline(--indent);
+        }
+        print("}");
         return null;
     }
 
@@ -171,6 +231,18 @@ public final class Generator implements Ast.Visitor<Void> {
     @Override
     public Void visit(Ast.Expr.Binary ast) {
         //throw new UnsupportedOperationException(); //TODO
+        print(ast.getLeft()," ");
+        if (ast.getOperator().equals("AND")) {
+            print("&&");
+        }
+        else if (ast.getOperator().equals("OR")) {
+            print("||");
+        }
+        else {
+            print(ast.getOperator());
+        }
+        print(" ", ast.getRight());
+
         return null;
     }
 
